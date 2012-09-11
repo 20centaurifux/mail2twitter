@@ -1,8 +1,15 @@
-import database, validator, sys, re, time
+import database, mail, validator, config, htmlrenderer
+import sys, re, time, email.utils
 
 # helpers:
 def connectToDatabase():
-	return database.Database('./')
+	return database.Database(config.DB_PATH)
+
+def createMailer():
+	return mail.Mail(config.POP3_SERVER, config.POP3_PORT, config.POP3_USER, config.POP3_PASSWORD)
+
+def createHtmlRenderer():
+	return htmlrenderer.LynxRenderer(config.LYNX_EXECUTABLE)
 
 # actions:
 def createUser(args):
@@ -147,6 +154,34 @@ def showQueue(args):
 
 		print('%d. %s %s: "%s", %s<%s>' % (id, time.ctime(timestamp), action, text, username, email))
 
+def fetchMails(args):
+	m = createMailer()
+
+	mails = m.fetchMails()
+
+	for mail in mails:
+		subject = mail['Subject']
+		fromAddr = email.utils.parseaddr(mail['From'])
+		datestr = time.mktime(email.utils.parsedate(mail['Date']))
+
+		if mail.is_multipart():
+			body = mail.get_payload(0).get_payload().strip()
+		else:
+			body = mail.get_payload().strip()
+
+		m = re.match('^<html>.*', body)
+
+		if not m is None:
+			r = createHtmlRenderer()
+			body = r.render()
+
+		"""
+		print fromAddr
+		print datestr
+		print subject
+		print body
+		"""
+
 # each action has an assigned list of argument validators & one callback function
 commands = {
 		'--create-user':
@@ -196,6 +231,12 @@ commands = {
 			# args: None
 			'args': None,
 			'callback': showQueue
+		},
+		'--fetch-mails':
+		{
+			# args:None
+			'args': None,
+			'callback': fetchMails
 		}
 	   }
 
