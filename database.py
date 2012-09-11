@@ -87,6 +87,16 @@ class Database:
 
 		return None
 
+	def getEnabledAddresses(self):
+		addresses = {}
+
+		self.__cursor.execute('SELECT ID, Email FROM User WHERE Blocked=0 ORDER BY Email')
+
+		for id, email in self.__cursor.fetchall():
+			addresses[email] = id
+
+		return addresses
+
 	def appendToQueue(self, userId, typeId, text, ctime):
 		self.__cursor.execute('INSERT INTO Queue (UserId, TypeId, Text, CTime) VALUES (?, ?, ?, ?)', (userId, typeId, text, ctime))
 
