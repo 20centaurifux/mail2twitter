@@ -29,12 +29,18 @@ class Database:
 	def getUser(self, username):
 		self.__cursor.execute('SELECT Firstname, Lastname, Email, Blocked FROM User WHERE Username=?', (username, ))
 
-		row = self.__cursor.fetchone()
-
-		return row
+		return self.__cursor.fetchone()
 
 	def blockUser(self, username, blocked):
 		self.__cursor.execute('UPDATE User SET blocked=? WHERE Username=?', (blocked, username))
+
+	def userIsBlocked(self, username):
+		self.__cursor.execute('SELECT Blocked FROM User WHERE Username=?', (username, ))
+
+		if int(self.__cursor.fetchone()[0]) == 0:
+			return False
+
+		return True
 
 	def getUsers(self):
 		users = []
