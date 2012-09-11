@@ -129,7 +129,7 @@ def appendTweet(args):
 				db.appendToQueue(userId, database.PUBLISH_TWEET, text, time.time())
 				return True
 			else:
-				print('the given user ("%s") is blocked', username)
+				print('the given user ("%s") is blocked' % username)
 		else:
 			print('couldn\'t get user: "%s"' % username)
 
