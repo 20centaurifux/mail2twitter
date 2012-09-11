@@ -156,30 +156,34 @@ if __name__ == '__main__':
 	action = None
 
 	# test if user has set at least two additional arguments:
-	if sys.argv >= 2:
+	if len(sys.argv) >= 2:
 		# check if given action is defined
 		if commands.has_key(sys.argv[1]):
 			cmd = commands[sys.argv[1]]
+	else:
+		sys.exit(-1)
 
-	# found defined action...
-	if not cmd is None:
-		# ...now test if number of arguments is correct:
-		if not ((len(sys.argv) - 2 == 0 and cmd['args'] is None) or (cmd['args'] is not None and len(cmd['args']) == len(sys.argv) - 2)):
-			print('invalid number of arguments for action "%s"' % sys.argv[1])
-			sys.exit(-1)
-		else:
-			# validate arguments:
-			if cmd['args'] is not None:
-				for i in range(len(cmd['args'])):
-					try:
-						cmd['args'][i].validate(sys.argv[i + 2])
-						args.append(sys.argv[i + 2])
-	
-					except Exception, e:
-						print('invalid argument at position %d ("%s"): %s' % (i, sys.argv[i + 1], e))
-						sys.exit(-1)
-			
-			action = cmd['callback']
+	if cmd is None:
+		print('invalid usage, please check arguments')	
+		sys.exit(-1)
+
+	# test if number of arguments is correct:
+	if not ((len(sys.argv) - 2 == 0 and cmd['args'] is None) or (cmd['args'] is not None and len(cmd['args']) == len(sys.argv) - 2)):
+		print('invalid number of arguments for action "%s"' % sys.argv[1])
+		sys.exit(-1)
+	else:
+		# validate arguments:
+		if cmd['args'] is not None:
+			for i in range(len(cmd['args'])):
+				try:
+					cmd['args'][i].validate(sys.argv[i + 2])
+					args.append(sys.argv[i + 2].rstrip('\n'))
+
+				except Exception, e:
+					print('invalid argument at position %d ("%s"): %s' % (i + 1, sys.argv[i + 2], e))
+					sys.exit(-1)
+
+		action = cmd['callback']
 
 	# execute callback function with validated arguments:
 	assert(action is not None)
