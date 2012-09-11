@@ -114,31 +114,31 @@ commands = {
 		'--create-user':
 		{
 			# args: username, firstname, lastname, email
-			'args': [ validator.StringValidator(5, 64), validator.StringValidator(5, 64), validator.StringValidator(5, 64), validator.EmailValidator() ],
+			'args': [ validator.StringValidator(3, 64), validator.StringValidator(3, 64), validator.StringValidator(3, 64), validator.EmailValidator() ],
 			'callback': createUser
 		},
 		'--update-user':
 		{
 			# args: username, firstname, lastname, email
-			'args': [ validator.StringValidator(5, 64), validator.StringValidator(5, 64), validator.StringValidator(5, 64), validator.EmailValidator() ],
+			'args': [ validator.StringValidator(3, 64), validator.StringValidator(3, 64), validator.StringValidator(3, 64), validator.EmailValidator() ],
 			'callback': updateUser
 		},
 		'--show-user':
 		{
 			# args: username
-			'args': [ validator.StringValidator(5, 64) ],
+			'args': [ validator.StringValidator(3, 64) ],
 			'callback': showUser
 		},
 		'--enable-user':
 		{
 			# args: username
-			'args': [ validator.StringValidator(5, 64) ],
+			'args': [ validator.StringValidator(3, 64) ],
 			'callback': enableUser
 		},
 		'--disable-user':
 		{
 			# args: username
-			'args': [ validator.StringValidator(5, 64) ],
+			'args': [ validator.StringValidator(3, 64) ],
 			'callback': disableUser
 		},
 		'--show-users':
