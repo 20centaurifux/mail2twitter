@@ -29,7 +29,6 @@
 """
 
 import poplib, email, string
-import sys
 
 class Mail:
 	def __init__(self, pop3Server, pop3Port, pop3User, pop3Password):
