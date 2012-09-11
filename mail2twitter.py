@@ -49,8 +49,7 @@ def showUser(args):
 
 		if db.userExists(username):
 			firstname, lastname, email, blocked = db.getUser(username)
-
-			print 'user........: %s\nfirstname...: %s\nlastname....: %s\nemail.......: %s\nblocked.....: %d\n' % (username, firstname, lastname, email, blocked)
+			print 'user........: %s\nfirstname...: %s\nlastname....: %s\nemail.......: %s\nblocked.....: %d' % (username, firstname, lastname, email, blocked)
 		else:
 			print('couldn\'t find user: "%s"' % username)
 			return False
@@ -100,7 +99,7 @@ def showUsers(args):
 				else:
 					status = 'disabled'
 
-				print('%s <%s>, %s\n' % (username, email, status))
+				print('%s <%s>, %s' % (username, email, status))
 		else:
 			print('user database is empty')
 
