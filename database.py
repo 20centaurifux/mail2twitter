@@ -76,5 +76,11 @@ class Database:
 		return items
 
 	def __createTables__(self):
-		self.__cursor.execute('CREATE TABLE IF NOT EXISTS User (ID INT PRIMARY KEY, Username VARCHAR(64) UNIQUE, Firstname VARCHAR(64) NOT NULL, ' \
+		self.__cursor.execute('CREATE TABLE IF NOT EXISTS User (ID INTEGER PRIMARY KEY NOT NULL, Username VARCHAR(64) UNIQUE, Firstname VARCHAR(64) NOT NULL, ' \
 			'Lastname VARCHAR(64) NOT NULL, Email VARCHAR(64) NOT NULL UNIQUE, Blocked BIT NOT NULL)')
+
+		self.__cursor.execute('CREATE TABLE IF NOT EXISTS Queue (ID INTEGER PRIMARY KEY, UserID INT NOT NULL, TypeID INT NOT NULL, Text VARCHAR(256) NOT NULL, ' \
+			'CTime INT NOT NULL)')
+
+		self.__cursor.execute('CREATE TABLE IF NOT EXISTS History (ID INTEGER PRIMARY KEY, UserID INT NOT NULL, TypeID INT NOT NULL, Text VARCHAR(256) NOT NULL, ' \
+			'CTime INT NOT NULL, Done INT NOT NULL)')
