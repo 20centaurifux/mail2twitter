@@ -43,14 +43,9 @@ class Database:
 		return True
 
 	def getUsers(self):
-		users = []
-
 		self.__cursor.execute('SELECT Username, Email, Blocked FROM User ORDER BY Username')
 
-		for row in self.__cursor.fetchall():
-			users.append(row)
-
-		return users
+		return self.__cursor.fetchall()
 
 	def mapUser(self, username):
 		self.__cursor.execute('SELECT ID, Firstname, Lastname, Email, Blocked FROM User WHERE Username=?', (username, ))
@@ -66,14 +61,9 @@ class Database:
 		self.__cursor.execute('INSERT INTO Queue (UserId, TypeId, Text, CTime) VALUES (?, ?, ?, ?)', (userId, typeId, text, ctime))
 
 	def getQueue(self):
-		items = []
-
 		self.__cursor.execute('SELECT Queue.ID, username, email, TypeID, Text, CTime FROM Queue INNER JOIN User ON UserID=User.ID ORDER BY CTime')
 
-		for row in self.__cursor.fetchall():
-			items.append(row)
-
-		return items
+		return self.__cursor.fetchall()
 
 	def __createTables__(self):
 		self.__cursor.execute('CREATE TABLE IF NOT EXISTS User (ID INTEGER PRIMARY KEY NOT NULL, Username VARCHAR(64) UNIQUE, Firstname VARCHAR(64) NOT NULL, ' \
