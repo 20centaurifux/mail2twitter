@@ -40,10 +40,12 @@ class Mail:
 	def fetchMails(self):
 		mails = []
 
+		# connect to pop3 server:
 		client = poplib.POP3(self.__pop3Server, self.__pop3Port)
 		client.user(self.__pop3User)
 		client.pass_(self.__pop3Password)
 
+		# receive messages:
 		numMessages = len(client.list()[1])
 
 		for i in range(numMessages):
@@ -53,5 +55,9 @@ class Mail:
 			mails.append(email.message_from_string(str))
 
 		client.quit()
+
+		# delete messages:
+		for i in range(numMessages):
+			client.dele(i)
 
 		return mails
