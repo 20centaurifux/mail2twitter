@@ -54,10 +54,10 @@ class Mail:
 
 			mails.append(email.message_from_string(str))
 
-		client.quit()
-
 		# delete messages:
 		for i in range(numMessages):
-			client.dele(i)
+			client.dele(i + 1)
+
+		client.quit()
 
 		return mails
