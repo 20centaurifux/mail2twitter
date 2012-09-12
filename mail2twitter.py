@@ -189,8 +189,13 @@ def showQueue(args):
 
 def fetchMails(args):
 	# fetch emails:
-	m = createMailer()
-	mails = m.fetchMails()
+	#m = createMailer()
+	#mails = m.fetchMails()
+
+	import pickle
+	f = open('dump')
+	mails = pickle.load(f)
+	f.close()
 
 	# connect to database & get enabled email addresses:
 	db = connectToDatabase()
@@ -239,15 +244,22 @@ def fetchMails(args):
 					elif len(body) > 140:
 						db.createMessage(addresses[sender], messages.tweetTooLong(body))
 					else:
+						db.createMessage(addresses[sender], messages.tweetAccepted(body))
 						db.appendToQueue(addresses[sender], action, body, date, time.time())
 				else:
 					for username in [u.strip() for u in body.split(',')]:
+						print username
 						if len(username) < 3 or len(username) > 24:
 							if action == database.FOLLOW_USER:
 								db.createMessage(addresses[sender], messages.followNotAccepted(body))
 							else:
 								db.createMessage(addresses[sender], messages.unfollowNotAccepted(body))
 						else:
+							if action == database.FOLLOW_USER:
+								db.createMessage(addresses[sender], messages.followAccepted(username))
+							else:
+								db.createMessage(addresses[sender], messages.unfollowAccepted(username));
+	
 							db.appendToQueue(addresses[sender], action, body, date, time.time())
 
 def showMessageQueue(args):
