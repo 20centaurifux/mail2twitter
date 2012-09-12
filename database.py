@@ -28,7 +28,7 @@
 	empty folders or remove empty folders on the remote site.
 """
 
-import sqlite3, os
+import sqlite3, os, time
 
 PUBLISH_TWEET = 0
 FOLLOW_USER   = 1
@@ -105,6 +105,19 @@ class Database:
 
 		return self.__cursor.fetchall()
 
+	def createMessage(self, receiverId, text):
+		self.__cursor.execute('INSERT INTO Message (ReceiverID, Text, Timestamp, Sent, SentDate) VALUES (?, ?, ?, 0, NULL)', (receiverId, text, time.time()))
+
+	def getMessageQueue(self):
+		self.__cursor.execute('SELECT Username, Email, Text, Timestamp FROM Message INNER JOIN User ON ReceiverID=User.ID AND Blocked=0 AND Sent=0 ORDER BY Timestamp')
+
+		return self.__cursor.fetchall()
+
+	def getSentLog(self):
+		self.__cursor.execute('SELECT Username, Email, Text, SentDate FROM Message INNER JOIN User ON ReceiverID=User.ID AND Blocked=0 AND Sent=1 ORDER BY SentDate DESC')
+
+		return self.__cursor.fetchall()
+
 	def __createTables__(self):
 		self.__cursor.execute('CREATE TABLE IF NOT EXISTS User (ID INTEGER PRIMARY KEY NOT NULL, Username VARCHAR(64) UNIQUE, Firstname VARCHAR(64) NOT NULL, ' \
 			'Lastname VARCHAR(64) NOT NULL, Email VARCHAR(64) NOT NULL UNIQUE, Blocked BIT NOT NULL)')
@@ -114,3 +127,6 @@ class Database:
 
 		self.__cursor.execute('CREATE TABLE IF NOT EXISTS History (ID INTEGER PRIMARY KEY, UserID INT NOT NULL, TypeID INT NOT NULL, Text VARCHAR(256) NOT NULL, ' \
 			'Received INT NOT NULL, Timestamp INT NOT NULL)')
+
+		self.__cursor.execute('CREATE TABLE IF NOT EXISTS Message (ID INTEGER PRIMARY KEY, ReceiverID INT NOT NULL, Text VARCHAR(2048) NOT NULL, ' \
+			'Timestamp INT NOT NULL, Sent BIT NOT NULL, SentDate INT)')
