@@ -118,6 +118,16 @@ class Database:
 
 		return self.__cursor.fetchall()
 
+	def getReceivers(self):
+		self.__cursor.execute('SELECT DISTINCT(ReceiverID), Username, Email, Firstname, Lastname FROM Message INNER JOIN User ON User.ID=ReceiverID WHERE Blocked=0 ORDER BY ReceiverID')
+
+		return self.__cursor.fetchall()
+
+	def getMessagesFromUser(self, userId):
+		self.__cursor.execute('SELECT ID, Text, Timestamp FROM Message WHERE ReceiverID=? ORDER BY Timestamp', (userId, ))
+
+		return self.__cursor.fetchall()
+
 	def __createTables__(self):
 		self.__cursor.execute('CREATE TABLE IF NOT EXISTS User (ID INTEGER PRIMARY KEY NOT NULL, Username VARCHAR(64) UNIQUE, Firstname VARCHAR(64) NOT NULL, ' \
 			'Lastname VARCHAR(64) NOT NULL, Email VARCHAR(64) NOT NULL UNIQUE, Blocked BIT NOT NULL)')
