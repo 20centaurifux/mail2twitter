@@ -97,11 +97,11 @@ class Database:
 
 		return addresses
 
-	def appendToQueue(self, userId, typeId, text, ctime):
-		self.__cursor.execute('INSERT INTO Queue (UserId, TypeId, Text, CTime) VALUES (?, ?, ?, ?)', (userId, typeId, text, ctime))
+	def appendToQueue(self, userId, typeId, text, received, timestamp):
+		self.__cursor.execute('INSERT INTO Queue (UserId, TypeId, Text, Received, Timestamp) VALUES (?, ?, ?, ?, ?)', (userId, typeId, text, received, timestamp))
 
 	def getQueue(self):
-		self.__cursor.execute('SELECT Queue.ID, username, email, TypeID, Text, CTime FROM Queue INNER JOIN User ON UserID=User.ID ORDER BY CTime')
+		self.__cursor.execute('SELECT Queue.ID, username, email, TypeID, Text, Received FROM Queue INNER JOIN User ON UserID=User.ID ORDER BY Timestamp')
 
 		return self.__cursor.fetchall()
 
@@ -110,7 +110,7 @@ class Database:
 			'Lastname VARCHAR(64) NOT NULL, Email VARCHAR(64) NOT NULL UNIQUE, Blocked BIT NOT NULL)')
 
 		self.__cursor.execute('CREATE TABLE IF NOT EXISTS Queue (ID INTEGER PRIMARY KEY, UserID INT NOT NULL, TypeID INT NOT NULL, Text VARCHAR(256) NOT NULL, ' \
-			'CTime INT NOT NULL)')
+			'Received INT NOT NULL, Timestamp INT NOT NULL)')
 
 		self.__cursor.execute('CREATE TABLE IF NOT EXISTS History (ID INTEGER PRIMARY KEY, UserID INT NOT NULL, TypeID INT NOT NULL, Text VARCHAR(256) NOT NULL, ' \
-			'CTime INT NOT NULL, Done INT NOT NULL)')
+			'Received INT NOT NULL, Timestamp INT NOT NULL)')
