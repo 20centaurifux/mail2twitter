@@ -28,7 +28,7 @@
 	empty folders or remove empty folders on the remote site.
 """
 
-import database, mail, validator, config, htmlrenderer
+import database, mail, validator, config, htmlrenderer, messagegenerator
 import sys, re, time, email.utils
 
 # helpers:
@@ -40,6 +40,9 @@ def createMailer():
 
 def createHtmlRenderer():
 	return htmlrenderer.LynxRenderer(config.LYNX_EXECUTABLE)
+
+def createMessageGenerator():
+	return messagegenerator.MessageGenerator()
 
 # actions:
 def createUser(args):
@@ -156,7 +159,7 @@ def appendTweet(args):
 
 		if not userId is None:
 			if not db.userIsBlocked(username):
-				db.appendToQueue(userId, database.PUBLISH_TWEET, text, time.time())
+				db.appendToQueue(userId, database.PUBLISH_TWEET, text, time.time(), time.time())
 				return True
 			else:
 				print('the given user ("%s") is blocked' % username)
@@ -185,32 +188,79 @@ def showQueue(args):
 		print('%d. %s %s: "%s", %s<%s>' % (id, time.ctime(timestamp), action, text, username, email))
 
 def fetchMails(args):
+	# fetch emails:
 	m = createMailer()
-
 	mails = m.fetchMails()
 
+	# connect to database & get enabled email addresses:
+	db = connectToDatabase()
+	addresses = db.getEnabledAddresses()
+
+	# create message generator:
+	messages = createMessageGenerator()
+
+	# check received mails:
 	for mail in mails:
-		subject = mail['Subject']
+		# validate sender:
 		fromAddr = email.utils.parseaddr(mail['From'])
-		datestr = time.mktime(email.utils.parsedate(mail['Date']))
+		sender = fromAddr[1].strip().lower()
 
-		if mail.is_multipart():
-			body = mail.get_payload(0).get_payload().strip()
-		else:
-			body = mail.get_payload().strip()
+		if sender in addresses:
+			# parse email:
+			subject = mail['Subject'].lower().strip()
 
-		m = re.match('^<html>.*', body)
+			if subject == 'tweet':
+				action = database.PUBLISH_TWEET
+			elif subject == 'follow':
+				action = database.FOLLOW_USER
+			elif subject == 'unfollow':
+				action = database.UNFOLLOW_USER
+			else:
+				action = -1
 
-		if not m is None:
-			r = createHtmlRenderer()
-			body = r.render()
+			if action <> -1:
+				date = time.mktime(email.utils.parsedate(mail['Date']))
 
-		"""
-		print fromAddr
-		print datestr
-		print subject
-		print body
-		"""
+				if mail.is_multipart():
+					body = mail.get_payload(0).get_payload().strip()
+				else:
+					body = mail.get_payload().strip()
+
+				m = re.match('^<html>.*', body)
+
+				if not m is None:
+					r = createHtmlRenderer()
+					body = r.render(body)
+
+				# validate body & append message to queue on success:
+				if action == database.PUBLISH_TWEET:
+					if len(body) < 5:
+						db.createMessage(addresses[sender], messages.tweetTooShort(body))
+					elif len(body) > 140:
+						db.createMessage(addresses[sender], messages.tweetTooLong(body))
+					else:
+						db.appendToQueue(addresses[sender], action, body, date, time.time())
+				else:
+					for username in [u.strip() for u in body.split(',')]:
+						if len(username) < 3 or len(username) > 24:
+							if action == database.FOLLOW_USER:
+								db.createMessage(addresses[sender], messages.followNotAccepted(body))
+							else:
+								db.createMessage(addresses[sender], messages.unfollowNotAccepted(body))
+						else:
+							db.appendToQueue(addresses[sender], action, body, date, time.time())
+
+def showMessageQueue(args):
+	db = connectToDatabase()
+
+	for username, email, text, timestamp in db.getMessageQueue():
+		print('%s to %s<%s>: "%s"' % (time.ctime(timestamp), username, email, text))
+
+def showSentLog(args):
+	db = connectToDatabase()
+
+	for username, email, text, sentDate in db.getSentLog():
+		print('%s to %s<%s>: "%s"' % (time.ctime(sentDate), username, email, text))
 
 # each action has an assigned list of argument validators & one callback function
 commands = {
@@ -267,6 +317,18 @@ commands = {
 			# args:None
 			'args': None,
 			'callback': fetchMails
+		},
+		'--show-message-queue':
+		{
+			# args:None
+			'args': None,
+			'callback': showMessageQueue
+		},
+		'--show-sent-log':
+		{
+			# args:None
+			'args': None,
+			'callback': showSentLog
 		}
 	   }
 
