@@ -28,7 +28,8 @@
 	empty folders or remove empty folders on the remote site.
 """
 
-import database, mail, validator, config, htmlrenderer, messagegenerator
+# -*- coding: utf-8 -*-
+import database, mail, validator, config, htmlrenderer, messagegenerator, twitter
 import sys, re, time, email.utils
 
 # helpers:
@@ -44,6 +45,13 @@ def createHtmlRenderer():
 
 def createMessageGenerator():
 	return messagegenerator.MessageGenerator()
+
+def createTwitterClient():
+	# try to get access key & secret from database:
+	db = connectToDatabase()
+	key, secret = db.getOAuthData()
+
+	return twitter.Twitter(config.CONSUMER_KEY, config.CONSUMER_SECRET, key, secret)
 
 # actions:
 def createUser(args):
@@ -262,6 +270,53 @@ def sendMessages(args):
 		except Exception, e:
 			raise e
 
+def authenticate(args):
+	# get authentication url:
+	twitter = createTwitterClient()
+
+	url = twitter.getAuthorizationUrl()
+	print('Please visit the following id to request a PIN:')
+
+	# read pin:
+	pin = raw_input('PIN: ').strip()
+
+	# get access key/secret from Twitter:
+	auth = twitter.get_access_token(pin)
+
+	# store key/secret in database:
+	db = connectToDatabase()
+	db.saveOAuthData(auth.access_token.key, auth.access_token.secret)
+
+def post(args):
+	userIds = {}
+	db = connectToDatabase()
+	twitter = createTwitterClient()
+	generator = createMessageGenerator()
+
+	# get commands from queue:
+	for id, username, email, typeId, text, timestamp in db.getQueue():
+		if not username in userIds:
+			userIds[username] = db.mapUser(username)
+
+		# post to Twitter:
+		try:
+			if typeId == database.PUBLISH_TWEET:
+				twitter.publishTweet(text)
+				db.createMessage(userIds[username], generator.tweetPublished(text))
+			elif typeId == database.FOLLOW_USER or typeId == database.UNFOLLOW_USER:
+				for user in [u.strip() for u in text.split(',')]:
+					if typeId == database.FOLLOW_USER:
+						twitter.followUser(user)
+						db.createMessage(userIds[username], generator.followingUser(user))
+					else:
+						twitter.unfollowUser(user)
+						db.createMessage(userIds[username], generator.unfollowingUser(user))
+
+			# TODO: move queue item to history
+
+		except Exception, e:
+			db.createMessage(userIds[username], generator.failureOccured(e) + ' (queueId=%d)' % id)
+
 # each action has an assigned list of argument validators & one callback function
 commands = {
 		'--create-user':
@@ -323,6 +378,16 @@ commands = {
 		{
 			'args': None,
 			'callback': sendMessages
+		},
+		'--authenticate':
+		{
+			'args': None,
+			'callback': authenticate
+		},
+		'--post':
+		{
+			'args': None,
+			'callback': post
 		}
 	   }
 
@@ -331,6 +396,8 @@ if __name__ == '__main__':
 	cmd = None
 	args = []
 	action = None
+
+	t = createTwitterClient()
 
 	# test if user has set at least two additional arguments:
 	if len(sys.argv) >= 2:
