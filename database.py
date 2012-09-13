@@ -28,7 +28,7 @@
 	empty folders or remove empty folders on the remote site.
 """
 
-import sqlite3, os, time
+import sqlite3, os, time, string
 
 PUBLISH_TWEET = 0
 FOLLOW_USER   = 1
@@ -127,6 +127,9 @@ class Database:
 		self.__cursor.execute('SELECT ID, Text, Timestamp FROM Message WHERE ReceiverID=? ORDER BY Timestamp', (userId, ))
 
 		return self.__cursor.fetchall()
+
+	def markMessagesSent(self, messageIds):
+		self.__cursor.execute('UPDATE Message SET Sent=1, SentDate=? WHERE ID IN (%s)' %  string.join([str(id) for id in messageIds], ','), (time.time(), ))
 
 	def __createTables__(self):
 		self.__cursor.execute('CREATE TABLE IF NOT EXISTS User (ID INTEGER PRIMARY KEY NOT NULL, Username VARCHAR(64) UNIQUE, Firstname VARCHAR(64) NOT NULL, ' \
