@@ -167,13 +167,8 @@ def showQueue(args):
 
 def fetchMails(args):
 	# fetch emails:
-	#m = createMailer()
-	#mails = m.fetchMails()
-
-	import pickle
-	f = open('dump')
-	mails = pickle.load(f)
-	f.close()
+	m = createMailer()
+	mails = m.fetchMails()
 
 	# connect to database & get enabled email addresses:
 	db = connectToDatabase()
