@@ -150,29 +150,6 @@ def showUsers(args):
 
 	return True
 
-def appendTweet(args):
-	username, text = args
-
-	try:
-		db = connectToDatabase();
-
-		userId = db.mapUser(username)
-
-		if not userId is None:
-			if not db.userIsBlocked(username):
-				db.appendToQueue(userId, database.PUBLISH_TWEET, text, time.time(), time.time())
-				return True
-			else:
-				print('the given user ("%s") is blocked' % username)
-		else:
-			print('couldn\'t get user: "%s"' % username)
-
-	except Exception, e:
-		print('couldn\'t append: "%s"' % e)
-		return False
-
-	return False
-
 def showQueue(args):
 	db = connectToDatabase()
 
@@ -326,12 +303,6 @@ commands = {
 		{
 			'args': None,
 			'callback': showUsers
-		},
-		'--tweet':
-		{
-			# args: username, text
-			'args': [ validator.StringValidator(3, 64), validator.StringValidator(5, 140) ],
-			'callback': appendTweet
 		},
 		'--show-queue':
 		{
