@@ -37,7 +37,7 @@ def connectToDatabase():
 
 def createMailer():
 	return mail.Mail(config.POP3_SERVER, config.POP3_PORT, config.POP3_USER, config.POP3_PASSWORD, \
-		config.SMTP_SERVER, config.SMTP_SERVER, config.SMTP_USER, config.SMTP_PASSWORD, config.SMTP_FROM)
+		config.SMTP_SERVER, config.SMTP_PORT, config.SMTP_USER, config.SMTP_PASSWORD, config.SMTP_FROM)
 
 def createHtmlRenderer():
 	return htmlrenderer.LynxRenderer(config.LYNX_EXECUTABLE)
