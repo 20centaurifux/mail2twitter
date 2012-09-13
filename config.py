@@ -28,11 +28,17 @@
 	empty folders or remove empty folders on the remote site.
 """
 
-DB_PATH=''
+DB_PATH='./'
 
 POP3_SERVER=''
 POP3_PORT=110
 POP3_USER=''
 POP3_PASSWORD=''
+
+SMTP_SERVER=''
+SMTP_PORT=25
+SMTP_USER=''
+SMTP_PASSWORD=''
+SMTP_FROM=''
 
 LYNX_EXECUTABLE=''
