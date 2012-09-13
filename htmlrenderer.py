@@ -28,6 +28,7 @@
 	empty folders or remove empty folders on the remote site.
 """
 
+# -*- coding: utf-8 -*-
 import subprocess
 
 class HtmlRenderer:

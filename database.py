@@ -28,6 +28,7 @@
 	empty folders or remove empty folders on the remote site.
 """
 
+# -*- coding: utf-8 -*-
 import sqlite3, os, time, string
 
 PUBLISH_TWEET = 0
