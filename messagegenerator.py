@@ -54,7 +54,7 @@ class MessageGenerator:
 
 	def mergeMessages(self, receiver, messages):
 		if messages is None:
-			text = 'none'
+			text = 'none\n'
 		else:
 			text = ''
 			sepBegin = '%s BEGIN %s' % ('=' * 40, '=' * 40)
