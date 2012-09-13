@@ -52,6 +52,18 @@ class MessageGenerator:
 	def unfollowNotAccepted(self, text):
 		return 'UNFOLLOW not accepted: %s' % text
 
+	def tweetPublished(self, text):
+		return 'TWEET HAS BEEN PUBLISHED: %s' % text
+
+	def followingUser(self, text):
+		return 'FOLLOWING USER: %s' % text
+
+	def unfollowingUser(self, text):
+		return 'UNFOLLOWING USER: %s' % text
+
+	def failureOccured(self, text):
+		return 'an failure occured: "%s"' % text
+
 	def mergeMessages(self, receiver, messages):
 		if messages is None:
 			text = 'none\n'
