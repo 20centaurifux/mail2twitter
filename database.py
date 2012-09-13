@@ -132,6 +132,20 @@ class Database:
 	def markMessagesSent(self, messageIds):
 		self.__cursor.execute('UPDATE Message SET Sent=1, SentDate=? WHERE ID IN (%s)' %  string.join([str(id) for id in messageIds], ','), (time.time(), ))
 
+	def saveOAuthData(self, access_key, access_secret):
+		self.__cursor.execute('DELETE FROM OAuth')
+		self.__cursor.execute('INSERT INTO OAuth (Key, Secret) VALUES (?, ?)', (access_key, access_secret))
+
+	def getOAuthData(self):
+		self.__cursor.execute('SELECT Key, Secret FROM OAuth')
+
+		row = self.__cursor.fetchone()
+
+		if not row is None:
+			return row
+
+		return [None, None]
+
 	def __createTables__(self):
 		self.__cursor.execute('CREATE TABLE IF NOT EXISTS User (ID INTEGER PRIMARY KEY NOT NULL, Username VARCHAR(64) UNIQUE, Firstname VARCHAR(64) NOT NULL, ' \
 			'Lastname VARCHAR(64) NOT NULL, Email VARCHAR(64) NOT NULL UNIQUE, Blocked BIT NOT NULL)')
@@ -144,3 +158,5 @@ class Database:
 
 		self.__cursor.execute('CREATE TABLE IF NOT EXISTS Message (ID INTEGER PRIMARY KEY, ReceiverID INT NOT NULL, Text VARCHAR(2048) NOT NULL, ' \
 			'Timestamp INT NOT NULL, Sent BIT NOT NULL, SentDate INT)')
+
+		self.__cursor.execute('CREATE TABLE IF NOT EXISTS OAuth (Key VARCHAR(64) NOT NULL, Secret VARCHAR(64) NOT NULL)')
