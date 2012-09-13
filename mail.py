@@ -28,14 +28,20 @@
 	empty folders or remove empty folders on the remote site.
 """
 
-import poplib, email, string
+import poplib, smtplib, email, string
+from email.mime.text import MIMEText
 
 class Mail:
-	def __init__(self, pop3Server, pop3Port, pop3User, pop3Password):
+	def __init__(self, pop3Server, pop3Port, pop3User, pop3Password, smtpServer, smtpPort, smtpUser, smtpPassword, smtpFrom):
 		self.__pop3Server = pop3Server
 		self.__pop3Port = pop3Port
 		self.__pop3User = pop3User
 		self.__pop3Password = pop3Password
+		self.__smtpServer = smtpServer
+		self.__smtpPort = smtpPort
+		self.__smtpUser = smtpUser
+		self.__smtpPassword = smtpPassword
+		self.__smtpFrom = smtpFrom
 
 	def fetchMails(self):
 		mails = []
@@ -61,3 +67,16 @@ class Mail:
 		client.quit()
 
 		return mails
+
+	def sendMail(self, receiver, subject, text):
+		msg = MIMEText(text)
+
+		msg['Subject'] = subject
+		msg['From'] = self.__smtpFrom
+		msg['To'] = receiver
+
+		client = smtplib.SMTP()
+		client.connect(self.__smtpServer, self.__smtpPort)
+		client.login(self.__smtpUser, self.__smtpPassword)
+		client.sendmail(self.__smtpFrom, [receiver], msg.as_string())
+		client.quit()
