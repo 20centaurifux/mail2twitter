@@ -36,7 +36,8 @@ def connectToDatabase():
 	return database.Database(config.DB_PATH)
 
 def createMailer():
-	return mail.Mail(config.POP3_SERVER, config.POP3_PORT, config.POP3_USER, config.POP3_PASSWORD)
+	return mail.Mail(config.POP3_SERVER, config.POP3_PORT, config.POP3_USER, config.POP3_PASSWORD, \
+		config.SMTP_SERVER, config.SMTP_SERVER, config.SMTP_USER, config.SMTP_PASSWORD, config.SMTP_FROM)
 
 def createHtmlRenderer():
 	return htmlrenderer.LynxRenderer(config.LYNX_EXECUTABLE)
@@ -248,7 +249,6 @@ def fetchMails(args):
 						db.appendToQueue(addresses[sender], action, body, date, time.time())
 				else:
 					for username in [u.strip() for u in body.split(',')]:
-						print username
 						if len(username) < 3 or len(username) > 24:
 							if action == database.FOLLOW_USER:
 								db.createMessage(addresses[sender], messages.followNotAccepted(body))
@@ -273,6 +273,22 @@ def showSentLog(args):
 
 	for username, email, text, sentDate in db.getSentLog():
 		print('%s to %s<%s>: "%s"' % (time.ctime(sentDate), username, email, text))
+
+def sendMessages(args):
+	generator = createMessageGenerator()
+	db = connectToDatabase()
+	mail = createMailer()
+
+	for id, username, email, firstname, lastname in db.getReceivers():
+		messages = db.getMessagesFromUser(id)
+
+		try:
+			fullMessage = generator.mergeMessages(firstname, messages)
+			mail.sendMail(email, 'Your latest messages', fullMessage)
+			db.markMessagesSent([r[0] for r in messages])
+
+		except Exception, e:
+			raise e
 
 # each action has an assigned list of argument validators & one callback function
 commands = {
@@ -308,7 +324,6 @@ commands = {
 		},
 		'--show-users':
 		{
-			# args: None
 			'args': None,
 			'callback': showUsers
 		},
@@ -320,27 +335,28 @@ commands = {
 		},
 		'--show-queue':
 		{
-			# args: None
 			'args': None,
 			'callback': showQueue
 		},
 		'--fetch-mails':
 		{
-			# args:None
 			'args': None,
 			'callback': fetchMails
 		},
 		'--show-message-queue':
 		{
-			# args:None
 			'args': None,
 			'callback': showMessageQueue
 		},
 		'--show-sent-log':
 		{
-			# args:None
 			'args': None,
 			'callback': showSentLog
+		},
+		'--send-messages':
+		{
+			'args': None,
+			'callback': sendMessages
 		}
 	   }
 
