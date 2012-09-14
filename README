@@ -1,0 +1,93 @@
+======================================================
+Release Notes for mail2twitter
+======================================================
+
+Preamble
+--------
+
+mail2twitter provides a bridge between an email and a Twitter
+account. This allows you to share a Twitter account with other persons
+without sharing the password.
+
+mail2twitter is free software. Permission is granted to copy, modify
+and redistribute it under the provisions of the GNU General Public
+License Version 2, as published by the Free Software Foundation; see the
+file COPYING for licensing details.
+
+Note, in particular, that mail2twitter is provided "as is", in the hope
+that it may prove useful, but WITHOUT WARRANTY OF ANY KIND; not even an
+implied WARRANTY OF MERCHANTABILITY, nor of FITNESS FOR ANY PARTICULAR
+PURPOSE. Under no circumstances will the authors accept liability for
+any damages, however caused, arising from the use of this software.
+
+
+Requirements
+------------
+
+You require Python 2 to execute the script. You will need also the
+following packages:
+
+* pyicu
+* tweepy
+
+
+Usage
+-----
+
+Before using mail2twitter please open the 'config.py' file to configure
+the application.
+
+mail2twitter stores information in a database file. To specify the
+location of this file set a valid path ('DB_PATH').
+
+Also enter your POP3 and SMTP credentials to let mail2twitter receive
+and send messages.
+
+Now login to Twitter to create a consumer key and secret. mail2twitter
+needs these values to connect to Twitter ('CONSUMER_KEY',
+'CONSUMER_SECRET').
+
+mail2twitter can handle emails in HTML format by using the Lynx browser
+for rendering. Therefore please set the (full) path to your Lynx browser
+('LYNX_EXECUTABLE').
+
+When you have finished the configuration you can create the first user:
+
+# mail2twitter.py --create-user [username] [firstname] [lastname] [email]
+
+There are two options available to query user information:
+
+# mail2twitter.py --show-users
+# mail2twitter.py --show-user [username]
+
+If you want to enable/disable an account use the option
+'--enable-user [username]' or '--disable-user [username]'.
+
+Kindly note that mail2twitter will only process emails from enabled users.
+
+To create a tweet please send an email with the subject 'tweet' to the
+specified email address. The body of your message will be tweeted.
+
+It's also possible to follow/unfollow users. Therefore send and email
+with the subject 'follow'/'unfollow'. The message body can be a comma-separated
+list of Twitter user names or a single name.
+
+Use the option '--fetch-mails' to receive emails. Received commands are
+stored in an internal queue. You can print this queue with the following
+command:
+
+# mail2twitter.py --show-queue
+
+To process the queue use the '--post' option.
+
+When mail2twitter receives mails or connects to Twitter it will generate
+various messages (e.g. when a received email is invalid). It's possible to
+send these messages with the '--send-messages' option. mail2twitter will
+use the defined SMTP credentials to send mails.
+
+You can print a list with all available commands by entering
+
+# mail2twitter.py --help
+
+
+Have fun!
