@@ -154,7 +154,7 @@ class Database:
 		return self.__cursor.fetchall()
 
 	def getMessagesFromUser(self, userId):
-		self.__cursor.execute('SELECT ID, Text, Timestamp FROM Message WHERE ReceiverID=? ORDER BY Timestamp', (userId, ))
+		self.__cursor.execute('SELECT ID, Text, Timestamp FROM Message WHERE ReceiverID=? AND Sent=0 ORDER BY Timestamp', (userId, ))
 
 		return self.__cursor.fetchall()
 
