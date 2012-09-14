@@ -120,6 +120,12 @@ class Database:
 
 		return self.__cursor.fetchall()
 
+	def deleteFromMessageQueue(self, id):
+		self.__cursor.execute('DELETE FROM Message WHERE ID=?', (id, ))
+
+	def deleteMessageQueue(self):
+		self.__cursor.execute('DELETE FROM Message')
+
 	def getSentLog(self):
 		self.__cursor.execute('SELECT Username, Email, Text, SentDate FROM Message INNER JOIN User ON ReceiverID=User.ID AND Blocked=0 AND Sent=1 ORDER BY SentDate DESC')
 
