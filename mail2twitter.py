@@ -173,6 +173,16 @@ def showQueue(args):
 
 		print('%d. %s %s: "%s", %s<%s>' % (id, time.ctime(timestamp), action, text, username, email))
 
+def deleteFromQueue(args):
+	id = args[0]
+
+	db = connectToDatabase()
+	db.deleteFromQueue(id)
+
+def clearQueue(args):
+	db = connectToDatabase()
+	db.deleteQueue()
+
 def fetchMails(args):
 	# fetch emails:
 	m = createMailer()
@@ -358,6 +368,17 @@ commands = {
 		{
 			'args': None,
 			'callback': showQueue
+		},
+		'--delete-from-queue':
+		{
+			# args: id
+			'args': [ validator.NumberValidator(0) ],
+			'callback': deleteFromQueue
+		},
+		'--clear-queue':
+		{
+			'args': None,
+			'callback': clearQueue
 		},
 		'--fetch-mails':
 		{
