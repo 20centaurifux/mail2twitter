@@ -54,3 +54,17 @@ class EmailValidator(Validator):
 	def validate(self, value):
 		if re.match('^.+\\@(\\[?)[a-zA-Z0-9\\-\\.]+\\.([a-zA-Z]{2,3}|[0-9]{1,3})(\\]?)$', value) is None:
 			raise Exception('there entered text is no valid email address')
+
+class NumberValidator(Validator):
+	def __init__(self, min=None, max=None):
+		self.__min = min
+		self.__max = max
+
+	def validate(self, value):
+		n = int(value)
+
+		if not self.__min is None and n < self.__min:
+				raise Exception('the entered value exceeds the minimum')
+
+		if not self.__max is None and n < self.__max:
+				raise Exception('the entered value exceeds the maximum')
