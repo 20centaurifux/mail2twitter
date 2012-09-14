@@ -258,6 +258,16 @@ def showMessageQueue(args):
 	for id, username, email, text, timestamp in db.getMessageQueue():
 		print('%d. %s to %s<%s>: "%s"' % (id, time.ctime(timestamp), username, email, text))
 
+def deleteFromMessageQueue(args):
+	id = args[0]
+
+	db = connectToDatabase()
+	db.deleteFromMessageQueue(id)
+
+def clearMessageQueue(args):
+	db = connectToDatabase()
+	db.deleteMessageQueue()
+
 def showSentLog(args):
 	db = connectToDatabase()
 
@@ -389,6 +399,17 @@ commands = {
 		{
 			'args': None,
 			'callback': showMessageQueue
+		},
+		'--delete-from-message-queue':
+		{
+			# args: id
+			'args': [ validator.NumberValidator(0) ],
+			'callback': deleteFromMessageQueue
+		},
+		'--clear-message-queue':
+		{
+			'args': None,
+			'callback': clearMessageQueue
 		},
 		'--show-sent-log':
 		{
