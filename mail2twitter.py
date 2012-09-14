@@ -59,9 +59,9 @@ def convertTypeToText(typeId):
 	if typeId == database.PUBLISH_TWEET:
 		return 'TWEET'
 	elif typeId == database.FOLLOW_USER:
-		return 'FoLLOW'
+		return 'FOLLOW'
 	elif typeId == database.UNFOLLOW_USER:
-		return 'UNFoLLOW'
+		return 'UNFOLLOW'
 
 	return None
 
