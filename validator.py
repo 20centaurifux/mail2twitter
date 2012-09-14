@@ -66,5 +66,5 @@ class NumberValidator(Validator):
 		if not self.__min is None and n < self.__min:
 				raise Exception('the entered value exceeds the minimum')
 
-		if not self.__max is None and n < self.__max:
+		if not self.__max is None and n > self.__max:
 				raise Exception('the entered value exceeds the maximum')
