@@ -101,6 +101,12 @@ class Database:
 	def appendToQueue(self, userId, typeId, text, received, timestamp):
 		self.__cursor.execute('INSERT INTO Queue (UserId, TypeId, Text, Received, Timestamp) VALUES (?, ?, ?, ?, ?)', (userId, typeId, text, received, timestamp))
 
+	def deleteFromQueue(self, id):
+		self.__cursor.execute('DELETE FROM Queue WHERE ID=?', (id, ))
+
+	def deleteQueue(self):
+		self.__cursor.execute('DELETE FROM Queue')
+
 	def getQueue(self):
 		self.__cursor.execute('SELECT Queue.ID, username, email, TypeID, Text, Received FROM Queue INNER JOIN User ON UserID=User.ID ORDER BY Timestamp')
 
