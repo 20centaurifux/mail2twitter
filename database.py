@@ -108,7 +108,24 @@ class Database:
 		self.__cursor.execute('DELETE FROM Queue')
 
 	def getQueue(self):
-		self.__cursor.execute('SELECT Queue.ID, username, email, TypeID, Text, Received FROM Queue INNER JOIN User ON UserID=User.ID ORDER BY Timestamp')
+		self.__cursor.execute('SELECT Queue.ID, Username, Email, TypeID, Text, Received FROM Queue INNER JOIN User ON UserID=User.ID ORDER BY Timestamp')
+
+		return self.__cursor.fetchall()
+
+	def moveFromQueueToHistory(self, id):
+		# get queue item:
+		self.__cursor.execute('SELECT UserID, TypeID, Text, Received FROM Queue WHERE ID=?', (id, ))
+		userId, typeId, text, received = self.__cursor.fetchone()
+
+		# insert history record:
+		self.__cursor.execute('INSERT INTO History (UserID, TypeID, Text, Received, Timestamp) VALUES (?, ?, ?, ?, ?)', \
+			(userId, typeId, text, received, time.time()))
+
+		# delete queue item:
+		self.__cursor.execute('DELETE FROM Queue WHERE ID=?', (id, ))
+
+	def getHistory(self):
+		self.__cursor.execute('SELECT History.ID, Username, Email, TypeID, Text, Timestamp FROM History INNER JOIN User ON UserID=User.ID ORDER BY Timestamp')
 
 		return self.__cursor.fetchall()
 
