@@ -31,6 +31,8 @@
 # -*- coding: utf-8 -*-
 import database, mail, validator, config, htmlrenderer, messagegenerator, twitter
 import sys, re, time, email.utils
+from quopri import decodestring
+from encoding import encode
 
 # helpers:
 def connectToDatabase():
@@ -176,6 +178,8 @@ def fetchMails(args):
 					body = mail.get_payload(0).get_payload().strip()
 				else:
 					body = mail.get_payload().strip()
+
+				body = encode(decodestring(body))
 
 				m = re.match('^<html>.*', body)
 
