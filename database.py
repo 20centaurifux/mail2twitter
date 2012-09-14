@@ -112,7 +112,7 @@ class Database:
 
 		return self.__cursor.fetchall()
 
-	def moveFromQueueToHistory(self, id):
+	def moveQueueItemToHistory(self, id):
 		# get queue item:
 		self.__cursor.execute('SELECT UserID, TypeID, Text, Received FROM Queue WHERE ID=?', (id, ))
 		userId, typeId, text, received = self.__cursor.fetchone()

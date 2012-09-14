@@ -55,6 +55,16 @@ def createTwitterClient():
 
 	return twitter.Twitter(config.CONSUMER_KEY, config.CONSUMER_SECRET, key, secret)
 
+def convertTypeToText(typeId):
+	if typeId == database.PUBLISH_TWEET:
+		return 'TWEET'
+	elif typeId == database.FOLLOW_USER:
+		return 'FoLLOW'
+	elif typeId == database.UNFOLLOW_USER:
+		return 'UNFoLLOW'
+
+	return None
+
 # actions:
 def createUser(args):
 	username, firstname, lastname, email = args
@@ -119,16 +129,13 @@ def showQueue(args):
 	db = connectToDatabase()
 
 	for id, username, email, typeId, text, timestamp in db.getQueue():
-		if typeId == database.PUBLISH_TWEET:
-			action = 'TWEET'
-		elif typeId == database.FOLLOW_USER:
-			action = 'FOLLOW'
-		elif typeId == database.UNFOLLOW_USER:
-			action = 'UNFOLLOW'
-		else:
-			raise Exception('invalid type id')
+		print('%d. %s %s: "%s", %s<%s>' % (id, time.ctime(timestamp), convertTypeToText(typeId), text, username, email))
 
-		print('%d. %s %s: "%s", %s<%s>' % (id, time.ctime(timestamp), action, text, username, email))
+def showHistory(args):
+	db = connectToDatabase()
+
+	for id, username, email, typeId, text, timestamp in db.getHistory():
+		print('%d. %s %s: "%s", %s<%s>' % (id, time.ctime(timestamp), convertTypeToText(typeId), text, username, email))
 
 def deleteFromQueue(args):
 	id = args[0]
@@ -287,7 +294,8 @@ def post(args):
 						twitter.unfollowUser(user)
 						db.createMessage(userIds[username], generator.unfollowingUser(user))
 
-			# TODO: move queue item to history
+			# move queue item to history
+			db.moveQueueItemToHistory(id)
 
 		except Exception, e:
 			db.createMessage(userIds[username], generator.failureOccured(e) + ' (queueId=%d)' % id)
@@ -309,7 +317,8 @@ def printUsage(args=None):
 	print('\tQUEUE')
 	print('\t--show-queue                      print current queue')
 	print('\t--delete-from-queue [id]          delete item from the queue')
-	print('\t--clear-queue                     delete all items from the queue\n')
+	print('\t--clear-queue                     delete all items from the queue')
+	print('\t--show-history                    print history\n')
 	print('\tMESSAGES')
 	print('\t--show-message-queue              print current message queue')
 	print('\t--delete-from-message-queue [id]  delete item from the message queue')
@@ -362,6 +371,11 @@ commands = {
 		{
 			'args': None,
 			'callback': showQueue
+		},
+		'--show-history':
+		{
+			'args': None,
+			'callback': showHistory
 		},
 		'--delete-from-queue':
 		{
