@@ -255,8 +255,8 @@ def fetchMails(args):
 def showMessageQueue(args):
 	db = connectToDatabase()
 
-	for username, email, text, timestamp in db.getMessageQueue():
-		print('%s to %s<%s>: "%s"' % (time.ctime(timestamp), username, email, text))
+	for id, username, email, text, timestamp in db.getMessageQueue():
+		print('%d. %s to %s<%s>: "%s"' % (id, time.ctime(timestamp), username, email, text))
 
 def showSentLog(args):
 	db = connectToDatabase()

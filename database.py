@@ -116,7 +116,7 @@ class Database:
 		self.__cursor.execute('INSERT INTO Message (ReceiverID, Text, Timestamp, Sent, SentDate) VALUES (?, ?, ?, 0, NULL)', (receiverId, text, time.time()))
 
 	def getMessageQueue(self):
-		self.__cursor.execute('SELECT Username, Email, Text, Timestamp FROM Message INNER JOIN User ON ReceiverID=User.ID AND Blocked=0 AND Sent=0 ORDER BY Timestamp')
+		self.__cursor.execute('SELECT Message.ID, Username, Email, Text, Timestamp FROM Message INNER JOIN User ON ReceiverID=User.ID AND Blocked=0 AND Sent=0 ORDER BY Timestamp')
 
 		return self.__cursor.fetchall()
 
