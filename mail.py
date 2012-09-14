@@ -31,6 +31,7 @@
 # -*- coding: utf-8 -*-
 import poplib, smtplib, email, string
 from email.mime.text import MIMEText
+from encoding import encode
 
 class Mail:
 	def __init__(self, pop3Server, pop3Port, pop3User, pop3Password, smtpServer, smtpPort, smtpUser, smtpPassword, smtpFrom):
@@ -70,7 +71,7 @@ class Mail:
 		return mails
 
 	def sendMail(self, receiver, subject, text):
-		msg = MIMEText(text)
+		msg = MIMEText(text, 'plain', 'utf-8')
 
 		msg['Subject'] = subject
 		msg['From'] = self.__smtpFrom
