@@ -36,14 +36,20 @@ class Twitter:
 	def __init__(self, consumer_key=None, consumer_secret=None, access_key=None, access_secret=None):
 		self.consumer_key = consumer_key
 		self.consumer_secret = consumer_secret
+		self.__last_consumer_key = consumer_key
+		self.__last_consumer_secret = consumer_secret
 		self.access_key = access_key
 		self.access_secret = access_secret
+		self.__auth = None
 
 	def getAuthorizationUrl(self):
 		return self.__createAuth__().get_authorization_url()
 
 	def getAccessToken(self, pin):
-		return self.__createAuth__().get_access_token(pin)
+		auth = self.__createAuth__()
+		auth.get_access_token(pin)
+
+		return auth.access_token.key, auth.access_token.secret
 
 	def publishTweet(self, text):
 		self.__createAPI__().update_status(text)
@@ -55,9 +61,18 @@ class Twitter:
 		self.__createAPI__().destroy_friendship(screen_name=username)
 
 	def __createAuth__(self):
-		return tweepy.OAuthHandler(self.consumer_key, self.consumer_secret)
+		if self.__auth is None:
+			self.__auth = tweepy.OAuthHandler(self.consumer_key, self.consumer_secret)
+		else:
+			if self.__last_consumer_key != self.consumer_key or self.__last_consumer_secret != self.consumer_secret:
+				self.__last_consumer_key = self.consumer_key
+				self.__last_consumer_secret = self.consumer_secret
+				self.__auth = tweepy.OAuthHandler(self.consumer_key, self.consumer_secret)
+
+		return self.__auth
 
 	def __createAPI__(self):
 		auth = tweepy.OAuthHandler(self.consumer_key, self.consumer_secret)
 		auth.set_access_token(self.access_key, self.access_secret)
+
 		return tweepy.API(auth)
