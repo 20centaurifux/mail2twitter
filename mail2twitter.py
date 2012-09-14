@@ -57,106 +57,61 @@ def createTwitterClient():
 def createUser(args):
 	username, firstname, lastname, email = args
 
-	try:
-		db = connectToDatabase()
+	db = connectToDatabase()
 
-		if not db.userExists(username):
-			db.createUser(username, firstname, lastname, email)
-		else:
-			print('given username does already exist')
-			return False
-
-	except Exception, e:
-		print('couldn\'t create user: "%s"' % e)
-		return False
-
-	return True
+	if not db.userExists(username):
+		db.createUser(username, firstname, lastname, email)
+	else:
+		raise Exception('given username does already exist')
 
 def updateUser(args):
 	username, firstname, lastname, email = args
 
-	try:
-		db = connectToDatabase()
+	db = connectToDatabase()
 
-		if db.userExists(username):
-			db.updateUser(username, firstname, lastname, email)
-		else:
-			print('couldn\'t find user: "%s"' % username)
-			return False
-
-	except Exception, e:
-		print('couldn\'t update user: "%s"' % e)
-		return False
-
-	return True
+	if db.userExists(username):
+		db.updateUser(username, firstname, lastname, email)
+	else:
+		raise Exception('couldn\'t find user: "%s"' % username)
 
 def showUser(args):
 	username = args[0]
 
-	try:
-		db = connectToDatabase()
+	db = connectToDatabase()
 
-		if db.userExists(username):
-			firstname, lastname, email, blocked = db.getUser(username)
-			print 'user........: %s\nfirstname...: %s\nlastname....: %s\nemail.......: %s\nblocked.....: %d' % (username, firstname, lastname, email, blocked)
-		else:
-			print('couldn\'t find user: "%s"' % username)
-			return False
-
-	except Exception, e:
-		print('couldn\'t get user: "%s"' % e)
-		return False
-
-	return True
+	if db.userExists(username):
+		firstname, lastname, email, blocked = db.getUser(username)
+		print 'user........: %s\nfirstname...: %s\nlastname....: %s\nemail.......: %s\nblocked.....: %d' % (username, firstname, lastname, email, blocked)
+	else:
+		raise Exception('couldn\'t find user: "%s"' % username)
 
 def enableUser(args):
 	username = args[0]
 
-	try:
-		db = connectToDatabase()
-		db.blockUser(username, 0)
-
-	except Exception, e:
-		print('couldn\'t enable user: "%s"' % e)
-		return False
-
-	return True
+	db = connectToDatabase()
+	db.blockUser(username, 0)
 
 def disableUser(args):
 	username = args[0]
 
-	try:
-		db = connectToDatabase()
-		db.blockUser(username, 1)
-
-	except Exception, e:
-		print('couldn\'t disable user: "%s"' % e)
-		return False
-
-	return True
+	db = connectToDatabase()
+	db.blockUser(username, 1)
 
 def showUsers(args):
-	try:
-		db = connectToDatabase()
+	db = connectToDatabase()
 
-		users = db.getUsers()
+	users = db.getUsers()
 
-		if not users is None:
-			for username, email, blocked in users:
-				if blocked == 0:
-					status = 'enabled'
-				else:
-					status = 'disabled'
+	if not users is None:
+		for username, email, blocked in users:
+			if blocked == 0:
+				status = 'enabled'
+			else:
+				status = 'disabled'
 
-				print('%s <%s>, %s' % (username, email, status))
-		else:
-			print('user database is empty')
-
-	except Exception, e:
-		print('couldn\'t get users: "%s"' % e)
-		return False
-
-	return True
+			print('%s <%s>, %s' % (username, email, status))
+	else:
+		print('user database is empty')
 
 def showQueue(args):
 	db = connectToDatabase()
@@ -282,13 +237,9 @@ def sendMessages(args):
 	for id, username, email, firstname, lastname in db.getReceivers():
 		messages = db.getMessagesFromUser(id)
 
-		try:
-			fullMessage = generator.mergeMessages(firstname, messages)
-			mail.sendMail(email, 'Your latest messages', fullMessage)
-			db.markMessagesSent([r[0] for r in messages])
-
-		except Exception, e:
-			raise e
+		fullMessage = generator.mergeMessages(firstname, messages)
+		mail.sendMail(email, 'Your latest messages', fullMessage)
+		db.markMessagesSent([r[0] for r in messages])
 
 def authenticate(args):
 	# get authentication url:
@@ -336,6 +287,35 @@ def post(args):
 
 		except Exception, e:
 			db.createMessage(userIds[username], generator.failureOccured(e) + ' (queueId=%d)' % id)
+
+# usage:
+def printUsage(args=None):
+	print('USAGE: mail2twitter.py --[command] [arg1] [arg2] ...\n')
+	print('The following commands are available:')
+	print('\tTWITTER')
+	print('\t--authenticate                    grant access to your account to mail2twitter')
+	print('\t--post                            process queue and post to Twitter\n')
+	print('\tUSER DATABASE')
+	print('\t--create-user [username] [firstname] [lastname] [email]   add user to user database')
+	print('\t--update-user [username] [firstname] [lastname] [email]   update an existing user')
+	print('\t--enable-user [username]                                  enable user account')
+	print('\t--disable-user [username]                                 disable user account')
+	print('\t--show-users                                              print all users from the user database')
+	print('\t--show-user [username]                                    print details of a user\n')
+	print('\tQUEUE')
+	print('\t--show-queue                      print current queue')
+	print('\t--delete-from-queue [id]          delete item from the queue')
+	print('\t--clear-queue                     delete all items from the queue\n')
+	print('\tMESSAGES')
+	print('\t--show-message-queue              print current message queue')
+	print('\t--delete-from-message-queue [id]  delete item from the message queue')
+	print('\t--clear-message-queue             delete all items from the message queue')
+	print('\t--send-messages                   send messages from message queue (SMTP)')
+	print('\t--show-sent-log                   show sent messages\n')
+	print('\tPOP3')
+	print('\t--fetch-mails                     receive mails from specified POP3 account\n')
+	print('\tGENERAL')
+	print('\t--help                            show this text\n')
 
 # each action has an assigned list of argument validators & one callback function
 commands = {
@@ -430,6 +410,11 @@ commands = {
 		{
 			'args': None,
 			'callback': post
+		},
+		'--help':
+		{
+			'args': None,
+			'callback': printUsage
 		}
 	   }
 
@@ -447,10 +432,10 @@ if __name__ == '__main__':
 		if commands.has_key(sys.argv[1]):
 			cmd = commands[sys.argv[1]]
 	else:
-		sys.exit(-1)
+		printUsage()
 
 	if cmd is None:
-		print('invalid usage, please check arguments')	
+		printUsage()
 		sys.exit(-1)
 
 	# test if number of arguments is correct:
@@ -473,4 +458,10 @@ if __name__ == '__main__':
 
 	# execute callback function with validated arguments:
 	assert(action is not None)
-	action(args)
+
+	try:
+		action(args)
+
+	except Exception, e:
+		print e
+		sys.exit(-1)
