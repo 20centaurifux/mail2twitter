@@ -246,17 +246,17 @@ def authenticate(args):
 	twitter = createTwitterClient()
 
 	url = twitter.getAuthorizationUrl()
-	print('Please visit the following id to request a PIN:')
+	print('Please visit the following id to request a PIN: %s' % url)
 
 	# read pin:
 	pin = raw_input('PIN: ').strip()
 
 	# get access key/secret from Twitter:
-	auth = twitter.get_access_token(pin)
+	key, secret = twitter.getAccessToken(pin)
 
 	# store key/secret in database:
 	db = connectToDatabase()
-	db.saveOAuthData(auth.access_token.key, auth.access_token.secret)
+	db.saveOAuthData(key, secret)
 
 def post(args):
 	userIds = {}
