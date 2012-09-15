@@ -217,7 +217,7 @@ def fetchMails(args):
 							else:
 								db.createMessage(addresses[sender], messages.unfollowAccepted(username))
 	
-							db.appendToQueue(addresses[sender], action, body, date, time.time())
+							db.appendToQueue(addresses[sender], action, username, date, time.time())
 
 def showMessageQueue(args):
 	db = connectToDatabase()
@@ -295,7 +295,7 @@ def post(args):
 						twitter.unfollowUser(user)
 						db.createMessage(userIds[username], generator.unfollowingUser(user))
 
-			# move queue item to history
+			# move queue item to history:
 			db.moveQueueItemToHistory(id)
 
 		except Exception, e:
@@ -331,7 +331,7 @@ def printUsage(args=None):
 	writeln('\tGENERAL')
 	writeln('\t--help                            show this text\n')
 
-# each action has an assigned list of argument validators & one callback function
+# each command has an assigned list of argument validators & one callback function
 commands = {
 		'--create-user':
 		{
@@ -365,17 +365,14 @@ commands = {
 		},
 		'--show-users':
 		{
-			'args': None,
 			'callback': showUsers
 		},
 		'--show-queue':
 		{
-			'args': None,
 			'callback': showQueue
 		},
 		'--show-history':
 		{
-			'args': None,
 			'callback': showHistory
 		},
 		'--delete-from-queue':
@@ -386,17 +383,14 @@ commands = {
 		},
 		'--clear-queue':
 		{
-			'args': None,
 			'callback': clearQueue
 		},
 		'--fetch-mails':
 		{
-			'args': None,
 			'callback': fetchMails
 		},
 		'--show-message-queue':
 		{
-			'args': None,
 			'callback': showMessageQueue
 		},
 		'--delete-from-message-queue':
@@ -407,32 +401,26 @@ commands = {
 		},
 		'--clear-message-queue':
 		{
-			'args': None,
 			'callback': clearMessageQueue
 		},
 		'--show-sent-log':
 		{
-			'args': None,
 			'callback': showSentLog
 		},
 		'--send-messages':
 		{
-			'args': None,
 			'callback': sendMessages
 		},
 		'--authenticate':
 		{
-			'args': None,
 			'callback': authenticate
 		},
 		'--post':
 		{
-			'args': None,
 			'callback': post
 		},
 		'--help':
 		{
-			'args': None,
 			'callback': printUsage
 		}
 	   }
@@ -450,12 +438,14 @@ if __name__ == '__main__':
 		# check if given action is defined
 		if commands.has_key(sys.argv[1]):
 			cmd = commands[sys.argv[1]]
-	else:
-		printUsage()
 
 	if cmd is None:
 		printUsage()
 		sys.exit(-1)
+
+	# add default args key:
+	if not 'args' in cmd:
+		cmd['args'] = None
 
 	# test if number of arguments is correct:
 	if not ((len(sys.argv) - 2 == 0 and cmd['args'] is None) or (cmd['args'] is not None and len(cmd['args']) == len(sys.argv) - 2)):
