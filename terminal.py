@@ -32,4 +32,7 @@
 import sys
 
 def writeln(text):
-	print text.encode(sys.stdout.encoding, errors='replace')
+	try:
+		print(text.encode(sys.stdout.encoding, errors='replace'))
+	except:
+		print(str(text).encode(sys.stdout.encoding, errors='replace'))
