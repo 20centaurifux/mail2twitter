@@ -35,6 +35,9 @@ from quopri import decodestring
 from encoding import encode
 from terminal import writeln
 
+# VERSION
+VERSION_MAJOR, VERSION_MINOR, VERSION_PATCHLEVEL, VERSION_PHASE = 0, 1, 0, 'beta'
+
 # helpers:
 def connectToDatabase():
 	return database.Database(config.DB_PATH)
@@ -301,7 +304,6 @@ def post(args):
 		except Exception, e:
 			db.createMessage(userIds[username], generator.failureOccured(e) + ' (queueId=%d)' % id)
 
-# usage:
 def printUsage(args=None):
 	writeln('USAGE: mail2twitter.py --[command] [arg1] [arg2] ...\n')
 	writeln('The following commands are available:')
@@ -330,6 +332,10 @@ def printUsage(args=None):
 	writeln('\t--fetch-mails                     receive mails from specified POP3 account\n')
 	writeln('\tGENERAL')
 	writeln('\t--help                            show this text\n')
+	writeln('\t--version                         show version\n')
+
+def printVersion(args):
+	writeln('version %d.%d.%d (%s)' % (VERSION_MAJOR, VERSION_MINOR, VERSION_PATCHLEVEL, VERSION_PHASE))
 
 # each command has an assigned list of argument validators & one callback function
 commands = {
@@ -422,6 +428,10 @@ commands = {
 		'--help':
 		{
 			'callback': printUsage
+		},
+		'--version':
+		{
+			'callback': printVersion
 		}
 	   }
 
