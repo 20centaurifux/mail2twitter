@@ -125,7 +125,7 @@ class Database:
 		self.__cursor.execute('DELETE FROM Queue WHERE ID=?', (id, ))
 
 	def getHistory(self):
-		self.__cursor.execute('SELECT History.ID, Username, Email, TypeID, Text, Timestamp FROM History INNER JOIN User ON UserID=User.ID ORDER BY Timestamp')
+		self.__cursor.execute('SELECT History.ID, Username, Email, TypeID, Text, Timestamp FROM History INNER JOIN User ON UserID=User.ID ORDER BY Timestamp DESC')
 
 		return self.__cursor.fetchall()
 
