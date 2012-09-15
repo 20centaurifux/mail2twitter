@@ -33,6 +33,7 @@ import database, mail, validator, config, htmlrenderer, messagegenerator, twitte
 import sys, re, time, email.utils
 from quopri import decodestring
 from encoding import encode
+from terminal import writeln
 
 # helpers:
 def connectToDatabase():
@@ -93,7 +94,7 @@ def showUser(args):
 
 	if db.userExists(username):
 		firstname, lastname, email, blocked = db.getUser(username)
-		print 'user........: %s\nfirstname...: %s\nlastname....: %s\nemail.......: %s\nblocked.....: %d' % (username, firstname, lastname, email, blocked)
+		writeln('user........: %s\nfirstname...: %s\nlastname....: %s\nemail.......: %s\nblocked.....: %d' % (username, firstname, lastname, email, blocked))
 	else:
 		raise Exception('couldn\'t find user: "%s"' % username)
 
@@ -121,21 +122,21 @@ def showUsers(args):
 			else:
 				status = 'disabled'
 
-			print('%s <%s>, %s' % (username, email, status))
+			writeln('%s <%s>, %s' % (username, email, status))
 	else:
-		print('user database is empty')
+		writeln('user database is empty')
 
 def showQueue(args):
 	db = connectToDatabase()
 
 	for id, username, email, typeId, text, timestamp in db.getQueue():
-		print('%d. %s %s: "%s", %s<%s>' % (id, time.ctime(timestamp), convertTypeToText(typeId), text, username, email))
+		writeln('%d. %s %s: "%s", %s<%s>' % (id, time.ctime(timestamp), convertTypeToText(typeId), text, username, email))
 
 def showHistory(args):
 	db = connectToDatabase()
 
 	for id, username, email, typeId, text, timestamp in db.getHistory():
-		print('%d. %s %s: "%s", %s<%s>' % (id, time.ctime(timestamp), convertTypeToText(typeId), text, username, email))
+		writeln('%d. %s %s: "%s", %s<%s>' % (id, time.ctime(timestamp), convertTypeToText(typeId), text, username, email))
 
 def deleteFromQueue(args):
 	id = args[0]
@@ -207,14 +208,14 @@ def fetchMails(args):
 					for username in [u.strip() for u in body.split(',')]:
 						if len(username) < 3 or len(username) > 24:
 							if action == database.FOLLOW_USER:
-								db.createMessage(addresses[sender], messages.followNotAccepted(body))
+								db.createMessage(addresses[sender], messages.followNotAccepted(username))
 							else:
-								db.createMessage(addresses[sender], messages.unfollowNotAccepted(body))
+								db.createMessage(addresses[sender], messages.unfollowNotAccepted(username))
 						else:
 							if action == database.FOLLOW_USER:
 								db.createMessage(addresses[sender], messages.followAccepted(username))
 							else:
-								db.createMessage(addresses[sender], messages.unfollowAccepted(username));
+								db.createMessage(addresses[sender], messages.unfollowAccepted(username))
 	
 							db.appendToQueue(addresses[sender], action, body, date, time.time())
 
@@ -222,7 +223,7 @@ def showMessageQueue(args):
 	db = connectToDatabase()
 
 	for id, username, email, text, timestamp in db.getMessageQueue():
-		print('%d. %s to %s<%s>: "%s"' % (id, time.ctime(timestamp), username, email, text))
+		writeln('%d. %s to %s<%s>: "%s"' % (id, time.ctime(timestamp), username, email, text))
 
 def deleteFromMessageQueue(args):
 	id = args[0]
@@ -238,7 +239,7 @@ def showSentLog(args):
 	db = connectToDatabase()
 
 	for username, email, text, sentDate in db.getSentLog():
-		print('%s to %s<%s>: "%s"' % (time.ctime(sentDate), username, email, text))
+		writeln('%s to %s<%s>: "%s"' % (time.ctime(sentDate), username, email, text))
 
 def sendMessages(args):
 	generator = createMessageGenerator()
@@ -257,7 +258,7 @@ def authenticate(args):
 	twitter = createTwitterClient()
 
 	url = twitter.getAuthorizationUrl()
-	print('Please visit the following id to request a PIN: %s' % url)
+	writeln('Please visit the following id to request a PIN: %s' % url)
 
 	# read pin:
 	pin = raw_input('PIN: ').strip()
@@ -302,33 +303,33 @@ def post(args):
 
 # usage:
 def printUsage(args=None):
-	print('USAGE: mail2twitter.py --[command] [arg1] [arg2] ...\n')
-	print('The following commands are available:')
-	print('\tTWITTER')
-	print('\t--authenticate                    grant access to your account to mail2twitter')
-	print('\t--post                            process queue and post to Twitter\n')
-	print('\tUSER DATABASE')
-	print('\t--create-user [username] [firstname] [lastname] [email]   add user to user database')
-	print('\t--update-user [username] [firstname] [lastname] [email]   update an existing user')
-	print('\t--enable-user [username]                                  enable user account')
-	print('\t--disable-user [username]                                 disable user account')
-	print('\t--show-users                                              print all users from the user database')
-	print('\t--show-user [username]                                    print details of a user\n')
-	print('\tQUEUE')
-	print('\t--show-queue                      print current queue')
-	print('\t--delete-from-queue [id]          delete item from the queue')
-	print('\t--clear-queue                     delete all items from the queue')
-	print('\t--show-history                    print history\n')
-	print('\tMESSAGES')
-	print('\t--show-message-queue              print current message queue')
-	print('\t--delete-from-message-queue [id]  delete item from the message queue')
-	print('\t--clear-message-queue             delete all items from the message queue')
-	print('\t--send-messages                   send messages from message queue (SMTP)')
-	print('\t--show-sent-log                   show sent messages\n')
-	print('\tPOP3')
-	print('\t--fetch-mails                     receive mails from specified POP3 account\n')
-	print('\tGENERAL')
-	print('\t--help                            show this text\n')
+	writeln('USAGE: mail2twitter.py --[command] [arg1] [arg2] ...\n')
+	writeln('The following commands are available:')
+	writeln('\tTWITTER')
+	writeln('\t--authenticate                    grant access to your account to mail2twitter')
+	writeln('\t--post                            process queue and post to Twitter\n')
+	writeln('\tUSER DATABASE')
+	writeln('\t--create-user [username] [firstname] [lastname] [email]   add user to user database')
+	writeln('\t--update-user [username] [firstname] [lastname] [email]   update an existing user')
+	writeln('\t--enable-user [username]                                  enable user account')
+	writeln('\t--disable-user [username]                                 disable user account')
+	writeln('\t--show-users                                              print all users from the user database')
+	writeln('\t--show-user [username]                                    print details of a user\n')
+	writeln('\tQUEUE')
+	writeln('\t--show-queue                      print current queue')
+	writeln('\t--delete-from-queue [id]          delete item from the queue')
+	writeln('\t--clear-queue                     delete all items from the queue')
+	writeln('\t--show-history                    print history\n')
+	writeln('\tMESSAGES')
+	writeln('\t--show-message-queue              print current message queue')
+	writeln('\t--delete-from-message-queue [id]  delete item from the message queue')
+	writeln('\t--clear-message-queue             delete all items from the message queue')
+	writeln('\t--send-messages                   send messages from message queue (SMTP)')
+	writeln('\t--show-sent-log                   show sent messages\n')
+	writeln('\tPOP3')
+	writeln('\t--fetch-mails                     receive mails from specified POP3 account\n')
+	writeln('\tGENERAL')
+	writeln('\t--help                            show this text\n')
 
 # each action has an assigned list of argument validators & one callback function
 commands = {
@@ -458,7 +459,7 @@ if __name__ == '__main__':
 
 	# test if number of arguments is correct:
 	if not ((len(sys.argv) - 2 == 0 and cmd['args'] is None) or (cmd['args'] is not None and len(cmd['args']) == len(sys.argv) - 2)):
-		print('invalid number of arguments for action "%s"' % sys.argv[1])
+		writeln('invalid number of arguments for action "%s"' % sys.argv[1])
 		sys.exit(-1)
 	else:
 		# validate arguments:
@@ -469,7 +470,7 @@ if __name__ == '__main__':
 					args.append(sys.argv[i + 2].rstrip('\n'))
 
 				except Exception, e:
-					print('invalid argument at position %d ("%s"): %s' % (i + 1, sys.argv[i + 2], e))
+					writeln('invalid argument at position %d ("%s"): %s' % (i + 1, sys.argv[i + 2], e))
 					sys.exit(-1)
 
 		action = cmd['callback']
@@ -481,5 +482,5 @@ if __name__ == '__main__':
 		action(args)
 
 	except Exception, e:
-		print e
+		writeln(e)
 		sys.exit(-1)
