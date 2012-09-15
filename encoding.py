@@ -32,9 +32,14 @@
 import icu
 
 def encode(text, new_coding='UTF-8'):
-	coding = icu.CharsetDetector(text).detect().getName()
+	coding = icu.CharsetDetector(text).detect()
+
+	if not coding is None:
+		coding = coding.getName()
   
-	if new_coding.upper() != coding.upper():
+  	if coding is None:
+		text = unicode(text).encode(new_coding)
+	elif new_coding.upper() != coding.upper():
 		text = unicode(text, coding).encode(new_coding)
 
 	return text
