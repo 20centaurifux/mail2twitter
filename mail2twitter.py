@@ -36,15 +36,15 @@ from encoding import encode
 from terminal import writeln
 
 # VERSION
-VERSION_MAJOR, VERSION_MINOR, VERSION_PATCHLEVEL, VERSION_PHASE = 0, 1, 0, 'beta'
+VERSION_MAJOR, VERSION_MINOR, VERSION_PATCHLEVEL, VERSION_PHASE = 0, 1, 0, 'stable'
 
 # helpers:
 def connectToDatabase():
 	return database.Database(config.DB_PATH)
 
 def createMailer():
-	return mail.Mail(config.POP3_SERVER, config.POP3_PORT, config.POP3_USER, config.POP3_PASSWORD, \
-		config.SMTP_SERVER, config.SMTP_PORT, config.SMTP_USER, config.SMTP_PASSWORD, config.SMTP_FROM)
+	return mail.Mail(config.POP3_SERVER, config.POP3_SSL, config.POP3_PORT, config.POP3_USER, config.POP3_PASSWORD, \
+		config.SMTP_SERVER, config.SMTP_SSL, config.SMTP_PORT, config.SMTP_USER, config.SMTP_PASSWORD, config.SMTP_FROM)
 
 def createHtmlRenderer():
 	return htmlrenderer.LynxRenderer(config.LYNX_EXECUTABLE)

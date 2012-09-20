@@ -34,12 +34,14 @@ from email.mime.text import MIMEText
 from encoding import encode
 
 class Mail:
-	def __init__(self, pop3Server, pop3Port, pop3User, pop3Password, smtpServer, smtpPort, smtpUser, smtpPassword, smtpFrom):
+	def __init__(self, pop3Server, pop3SSL, pop3Port, pop3User, pop3Password, smtpServer, smtpSSL, smtpPort, smtpUser, smtpPassword, smtpFrom):
 		self.__pop3Server = pop3Server
+		self.__pop3SSL = pop3SSL
 		self.__pop3Port = pop3Port
 		self.__pop3User = pop3User
 		self.__pop3Password = pop3Password
 		self.__smtpServer = smtpServer
+		self.__smtpSSL = smtpSSL
 		self.__smtpPort = smtpPort
 		self.__smtpUser = smtpUser
 		self.__smtpPassword = smtpPassword
@@ -49,7 +51,11 @@ class Mail:
 		mails = []
 
 		# connect to pop3 server:
-		client = poplib.POP3(self.__pop3Server, self.__pop3Port)
+		if self.__pop3SSL:
+			client = poplib.POP3_SSL(self.__pop3Server, self.__pop3Port)
+		else:
+			client = poplib.POP3(self.__pop3Server, self.__pop3Port)
+
 		client.user(self.__pop3User)
 		client.pass_(self.__pop3Password)
 
@@ -77,7 +83,11 @@ class Mail:
 		msg['From'] = self.__smtpFrom
 		msg['To'] = receiver
 
-		client = smtplib.SMTP()
+		if self.__smtpSSL:
+			client = smtplib.SMTP()
+		else:
+			client = smtplib.SMTP_SSL()
+
 		client.connect(self.__smtpServer, self.__smtpPort)
 		client.login(self.__smtpUser, self.__smtpPassword)
 		client.sendmail(self.__smtpFrom, [receiver], msg.as_string())
