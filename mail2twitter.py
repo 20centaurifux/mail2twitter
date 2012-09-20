@@ -252,9 +252,10 @@ def sendMessages(args):
 	for id, username, email, firstname, lastname in db.getReceivers():
 		messages = db.getMessagesFromUser(id)
 
-		fullMessage = generator.mergeMessages(firstname, messages)
-		mail.sendMail(email, 'Your latest messages', fullMessage)
-		db.markMessagesSent([r[0] for r in messages])
+		if len(messages) > 0:
+			fullMessage = generator.mergeMessages(firstname, messages)
+			mail.sendMail(email, 'Your latest messages', fullMessage)
+			db.markMessagesSent([r[0] for r in messages])
 
 def authenticate(args):
 	# get authentication url:
