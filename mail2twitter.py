@@ -191,6 +191,7 @@ def fetchMails(args):
 					body = mail.get_payload().strip()
 
 				body = encode(decodestring(body))
+				body = body.strip().strip('-').strip()
 
 				m = re.match('^<html>.*', body)
 
