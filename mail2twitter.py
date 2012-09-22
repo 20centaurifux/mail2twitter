@@ -151,6 +151,22 @@ def clearQueue(args):
 	db = connectToDatabase()
 	db.deleteQueue()
 
+def trimBody(body):
+	chars = ['-', '\n', ' ', '\t']
+
+	if body is None or len(body) == 0:
+		return ''
+
+	while body[-1:] in chars:
+		body = body[:-1]
+
+	chars = chars[1:]
+
+	while body[0:1] in chars:
+		body = body[1:]
+
+	return body
+
 def fetchMails(args):
 	# fetch emails:
 	m = createMailer()
@@ -190,8 +206,7 @@ def fetchMails(args):
 				else:
 					body = mail.get_payload().strip()
 
-				body = encode(decodestring(body))
-				body = body.strip().strip('-').strip()
+				body = trimBody(encode(decodestring(body)))
 
 				m = re.match('^<html>.*', body)
 
