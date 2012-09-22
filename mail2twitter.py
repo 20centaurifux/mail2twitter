@@ -36,7 +36,7 @@ from encoding import encode
 from terminal import writeln
 
 # VERSION
-VERSION_MAJOR, VERSION_MINOR, VERSION_PATCHLEVEL, VERSION_PHASE = 0, 1, 0, 'stable'
+VERSION_MAJOR, VERSION_MINOR, VERSION_PATCHLEVEL, VERSION_PHASE = 0, 1, 1, 'stable'
 
 # helpers:
 def connectToDatabase():
