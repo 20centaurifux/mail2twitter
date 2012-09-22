@@ -84,9 +84,9 @@ class Mail:
 		msg['To'] = receiver
 
 		if self.__smtpSSL:
-			client = smtplib.SMTP()
-		else:
 			client = smtplib.SMTP_SSL()
+		else:
+			client = smtplib.SMTP()
 
 		client.connect(self.__smtpServer, self.__smtpPort)
 		client.login(self.__smtpUser, self.__smtpPassword)
